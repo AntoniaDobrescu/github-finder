@@ -1,4 +1,6 @@
 import './style/style.scss';
 import './index.html';
-import './js/main';
+import './js/app';
+import './js/github';
+import './js/ui';
 
