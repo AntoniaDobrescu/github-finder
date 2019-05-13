@@ -2,15 +2,21 @@ class Github {
     constructor() {
         this.client_id = '09650e7f69d2e5383719';
         this.client_secret = '93212e3e5062dbbcf71f27e0b3a26a6400c644de';
+        this.repos_count = 5;
+        this.repos_sort = 'created: asc';
     }
 
     async getUser(user) {
         const profileResponse = await fetch(`https://api.github.com/users/${user}?client_id=${this.client_id}&client_secret=${this.client_secret}`);
 
-        const profileData = await profileResponse.json();
+        const repoResponse = await fetch(`https://api.github.com/users/${user}/repos?per_page=${this.repos_count}&sort=${this.repos_sort}&client_id=${this.client_id}&client_secret=${this.client_secret}`);
+
+        const profil = await profileResponse.json();
+        const repos = await repoResponse.json();
 
         return {
-            profile: profileData
+            profile,
+            repos
         }
     }
 }
@@ -46,6 +52,29 @@ class UI {
             <h3 class="page-heading mb-3">Latest Repos</h3>
             <div id="repos"></div>
         `;
+    }
+
+    showRepos(repos) {
+        let output = '';
+
+        repos.forEach(function(repo) {
+            output += `
+                <div class="card card-body mb-2">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <a href="${repo.html_url}" target="_blank">${repo.name}</a>
+                        </div>
+                        <div class="col-md-6">
+                            <span class="badge badge-primary">Stars: ${repo.stargazes_count}</span>
+                            <span class="badge badge-secondary">Watchers: ${repo.watchers_count}</span>
+                            <span class="badge badge-succes">Forks: ${repo.forms_count}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        document.getElementById('repos').innerHTML = output;
     }
 
     showAlert(message, className) {
@@ -88,6 +117,7 @@ searchUser.addEventListener('keyup', (e) => {
                     ui.showAlert('User not found', 'alert alert-danger');
                 } else {
                     ui.showProfile(data.profile);
+                    ui.showRepos(data.repos);
                 }
             });
     } else {
